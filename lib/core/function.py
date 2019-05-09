@@ -141,7 +141,7 @@ def validate(config, val_loader, model, criterion, epoch, writer_dict):
                 # flip W
                 flip_input = torch.flip(inp, dim=[3])
                 flip_output = model(flip_input)
-                flip_output = flip_back(flip_output[-1].data.cpu())
+                flip_output = flip_back(flip_output[-1].data.cpu(), config.DATASET.DATASET)
                 score_map += flip_output
             # loss
             loss = criterion(output, target)
