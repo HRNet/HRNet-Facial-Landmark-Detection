@@ -108,8 +108,6 @@ _C.TEST = CN()
 
 # size of images for each device
 _C.TEST.BATCH_SIZE_PER_GPU = 32
-# Test Model Epoch
-_C.TEST.FLIP_TEST = False
 
 
 def update_config(cfg, args):

@@ -14,8 +14,7 @@ import logging
 import torch
 import numpy as np
 
-from ..utils.transforms import flip_back
-from .evaluation import accuracy, decode_preds, compute_nme
+from .evaluation import decode_preds, compute_nme
 
 logger = logging.getLogger(__name__)
 
@@ -48,7 +47,6 @@ def train(config, train_loader, model, critertion, optimizer,
     batch_time = AverageMeter()
     data_time = AverageMeter()
     losses = AverageMeter()
-    acces = AverageMeter()
 
     model.train()
     nme_count = 0
@@ -66,9 +64,8 @@ def train(config, train_loader, model, critertion, optimizer,
 
         loss = critertion(output, target)
 
-        # NME and accuracy
+        # NME
         score_map = output.data.cpu()
-        acc = accuracy(score_map, target.cpu(), [1])
         preds = decode_preds(score_map, meta['center'], meta['scale'], [64, 64])
 
         nme_batch = compute_nme(preds, meta)
@@ -81,7 +78,6 @@ def train(config, train_loader, model, critertion, optimizer,
         optimizer.step()
 
         losses.update(loss.item(), inp.size(0))
-        acces.update(acc[0], inp.size(0))
 
         batch_time.update(time.time()-end)
         if i % config.PRINT_FREQ == 0:
@@ -89,24 +85,22 @@ def train(config, train_loader, model, critertion, optimizer,
                   'Time {batch_time.val:.3f}s ({batch_time.avg:.3f}s)\t' \
                   'Speed {speed:.1f} samples/s\t' \
                   'Data {data_time.val:.3f}s ({data_time.avg:.3f}s)\t' \
-                  'Loss {loss.val:.5f} ({loss.avg:.5f})\t' \
-                  'Accuracy {acc.val:.5f} ({acc.avg:.5f})'.format(
+                  'Loss {loss.val:.5f} ({loss.avg:.5f})\t'.format(
                       epoch, i, len(train_loader), batch_time=batch_time,
                       speed=inp.size(0)/batch_time.val,
-                      data_time=data_time, loss=losses, acc=acces)
+                      data_time=data_time, loss=losses)
             logger.info(msg)
 
             if writer_dict:
                 writer = writer_dict['writer']
                 global_steps = writer_dict['train_global_steps']
                 writer.add_scalar('train_loss', losses.val, global_steps)
-                writer.add_scalar('train_acc', acces.val, global_steps)
                 writer_dict['train_global_steps'] = global_steps + 1
 
         end = time.time()
     nme = nme_batch_sum / nme_count
-    msg = 'Train Epoch {} time:{:.4f} loss:{:.4f} acc:{:.4f} nme:{:.4f}'\
-        .format(epoch, batch_time.avg, losses.avg, acces.avg, nme)
+    msg = 'Train Epoch {} time:{:.4f} loss:{:.4f} nme:{:.4f}'\
+        .format(epoch, batch_time.avg, losses.avg, nme)
     logger.info(msg)
 
 
@@ -115,7 +109,6 @@ def validate(config, val_loader, model, criterion, epoch, writer_dict):
     data_time = AverageMeter()
 
     losses = AverageMeter()
-    acces = AverageMeter()
 
     num_classes = config.MODEL.NUM_JOINTS
     predictions = torch.zeros((len(val_loader.dataset), num_classes, 2))
@@ -127,7 +120,6 @@ def validate(config, val_loader, model, criterion, epoch, writer_dict):
     count_failure_008 = 0
     count_failure_010 = 0
     end = time.time()
-    flip = config.TEST.FLIP_TEST
 
     with torch.no_grad():
         for i, (inp, target, meta) in enumerate(val_loader):
@@ -136,20 +128,10 @@ def validate(config, val_loader, model, criterion, epoch, writer_dict):
             target = target.cuda(non_blocking=True)
 
             score_map = output.data.cpu()
-
-            if flip:
-                # flip W
-                flip_input = torch.flip(inp, dim=[3])
-                flip_output = model(flip_input)
-                flip_output = flip_back(flip_output[-1].data.cpu(), config.DATASET.DATASET)
-                score_map += flip_output
             # loss
             loss = criterion(output, target)
 
-            # accuracy
-            acc = accuracy(score_map, target.cpu(), [1])
             preds = decode_preds(score_map, meta['center'], meta['scale'], [64, 64])
-
             # NME
             nme_temp = compute_nme(preds, meta)
             # Failure Rate under different threshold
@@ -163,9 +145,7 @@ def validate(config, val_loader, model, criterion, epoch, writer_dict):
             for n in range(score_map.size(0)):
                 predictions[meta['index'][n], :, :] = preds[n, :, :]
 
-            # measure accuracy and record loss
             losses.update(loss.item(), inp.size(0))
-            acces.update(acc[0], inp.size(0))
 
             # measure elapsed time
             batch_time.update(time.time() - end)
@@ -175,8 +155,8 @@ def validate(config, val_loader, model, criterion, epoch, writer_dict):
     failure_008_rate = count_failure_008 / nme_count
     failure_010_rate = count_failure_010 / nme_count
 
-    msg = 'Test Epoch {} time:{:.4f} loss:{:.4f} acc:{:.4f} nme:{:.4f} [008]:{:.4f} ' \
-          '[010]:{:.4f}'.format(epoch, batch_time.avg, losses.avg, acces.avg, nme,
+    msg = 'Test Epoch {} time:{:.4f} loss:{:.4f} nme:{:.4f} [008]:{:.4f} ' \
+          '[010]:{:.4f}'.format(epoch, batch_time.avg, losses.avg, nme,
                                 failure_008_rate, failure_010_rate)
     logger.info(msg)
 
@@ -185,7 +165,6 @@ def validate(config, val_loader, model, criterion, epoch, writer_dict):
         global_steps = writer_dict['valid_global_steps']
         writer.add_scalar('valid_loss', losses.avg, global_steps)
         writer.add_scalar('valid_nme', nme, global_steps)
-        writer.add_scalar('valid_acc', acces.avg, global_steps)
         writer_dict['valid_global_steps'] = global_steps + 1
 
     return nme, predictions
@@ -195,7 +174,6 @@ def inference(config, data_loader, model):
     batch_time = AverageMeter()
     data_time = AverageMeter()
     losses = AverageMeter()
-    acces = AverageMeter()
 
     num_classes = config.MODEL.NUM_JOINTS
     predictions = torch.zeros((len(data_loader.dataset), num_classes, 2))
@@ -207,23 +185,12 @@ def inference(config, data_loader, model):
     count_failure_008 = 0
     count_failure_010 = 0
     end = time.time()
-    flip = config.TEST.FLIP_TEST
 
     with torch.no_grad():
         for i, (inp, target, meta) in enumerate(data_loader):
             data_time.update(time.time() - end)
             output = model(inp)
-            target = target.cuda(non_blocking=True)
-
             score_map = output.data.cpu()
-            if flip:
-                # flip W
-                flip_input = torch.flip(inp, dim=[3])
-                flip_output = model(flip_input)
-                flip_output = flip_back(flip_output[-1].data.cpu())
-                score_map += flip_output
-            # accuracy
-            acc = accuracy(score_map, target.cpu(), [1])
             preds = decode_preds(score_map, meta['center'], meta['scale'], [64, 64])
 
             # NME
@@ -239,7 +206,6 @@ def inference(config, data_loader, model):
             for n in range(score_map.size(0)):
                 predictions[meta['index'][n], :, :] = preds[n, :, :]
 
-            acces.update(acc[0], inp.size(0))
             # measure elapsed time
             batch_time.update(time.time() - end)
             end = time.time()
@@ -248,8 +214,8 @@ def inference(config, data_loader, model):
     failure_008_rate = count_failure_008 / nme_count
     failure_010_rate = count_failure_010 / nme_count
 
-    msg = 'Test Results time:{:.4f} loss:{:.4f} acc:{:.4f} nme:{:.4f} [008]:{:.4f} ' \
-          '[010]:{:.4f}'.format(batch_time.avg, losses.avg, acces.avg, nme,
+    msg = 'Test Results time:{:.4f} loss:{:.4f} nme:{:.4f} [008]:{:.4f} ' \
+          '[010]:{:.4f}'.format(batch_time.avg, losses.avg, nme,
                                 failure_008_rate, failure_010_rate)
     logger.info(msg)
 

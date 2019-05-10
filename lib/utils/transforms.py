@@ -31,32 +31,6 @@ MATCHED_PARTS = {
              [88, 92], [89, 91], [95, 93], [96, 97])}
 
 
-def fliplr(x):
-    if x.ndim == 3:
-        x = np.transpose(np.fliplr(np.transpose(x, (0, 2, 1))), (0, 2, 1))
-    elif x.ndim == 4:
-        for i in range(x.shape[0]):
-            x[i] = np.transpose(np.fliplr(np.transpose(x[i], (0, 2, 1))), (0, 2, 1))
-    return x.astype(float)
-
-
-def flip_back(flip_output, dataset='wflw'):
-    """
-    flip output map
-    """
-    matched_parts = MATCHED_PARTS[dataset]
-    # flip output horizontally
-    flip_output = fliplr(flip_output.numpy())
-
-    # Change left-right parts
-    for pair in matched_parts:
-        tmp = np.copy(flip_output[:, pair[0], :, :])
-        flip_output[:, pair[0], :, :] = flip_output[:, pair[1], :, :]
-        flip_output[:, pair[1], :, :] = tmp
-
-    return torch.from_numpy(flip_output).float()
-
-
 def fliplr_joints(x, width, dataset='aflw'):
     """
     flip coords
