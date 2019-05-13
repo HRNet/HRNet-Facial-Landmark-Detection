@@ -45,7 +45,7 @@ The model is trained on AFLW *train* and evaluated on AFLW *full* and *frontal*.
 
 | NME | *common*| *challenge* | *full* | *test*|  pretrained model|model|
 |:--:|:--:|:--:|:--:|:--:|:--:|:--:|
-|HRNetV2-W18 | 2.91 | 5.11 | 3.34 | 3.85 | [HRNetV2-W18](https://1drv.ms/u/s!Aus8VCZ_C_33cMkPimlmClRvmpw) | [HR18-300W.pth](https://1drv.ms/u/s!AiWjZ1Lamlxzd69Qk5c5qOw4ZaA)|
+|HRNetV2-W18 | 2.91 | 5.11 | 3.34 | 3.85 | [HRNetV2-W18](https://1drv.ms/u/s!Aus8VCZ_C_33cMkPimlmClRvmpw) | [HR18-300W.pth](https://1drv.ms/u/s!AiWjZ1LamlxzeYLmza1XU-4WhnQ)|
 
 
 ![](images/face.png)
