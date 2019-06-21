@@ -83,7 +83,7 @@ class COFW(data.Dataset):
 
             if random.random() <= 0.5 and self.flip:
                 img = np.fliplr(img)
-                pts = fliplr_joints(pts, width=img.shape[1], dataset='cofw')
+                pts = fliplr_joints(pts, width=img.shape[1], dataset='COFW')
                 center[0] = img.shape[1] - center[0]
 
         img = crop(img, center, scale, self.input_size, rot=r)
