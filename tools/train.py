@@ -70,7 +70,7 @@ def main():
     if config.TRAIN.RESUME:
         model_state_file = os.path.join(final_output_dir,
                                         'latest.pth')
-        if os.path.exists(model_state_file):
+        if os.path.islink(model_state_file):
             checkpoint = torch.load(model_state_file)
             last_epoch = checkpoint['epoch']
             best_nme = checkpoint['best_nme']
