@@ -60,7 +60,9 @@ def main():
     state_dict = torch.load(args.model_file)
     if 'state_dict' in state_dict.keys():
         state_dict = state_dict['state_dict']
-    model.module.load_state_dict(state_dict)
+        model.load_state_dict(state_dict)
+    else:
+        model.module.load_state_dict(state_dict)
 
     dataset_type = get_dataset(config)
 

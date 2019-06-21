@@ -142,24 +142,27 @@ def get_transform(center, scale, output_size, rot=0):
     return t
 
 
-def transform_pixel(pt, center, scale, output_size, invert=0, rot=0):
+def transform_pixel(pt, center, scale, output_size, invert=0, rot=0, dataset='AFLW'):
     # Transform pixel location to different reference
     t = get_transform(center, scale, output_size, rot=rot)
     if invert:
         t = np.linalg.inv(t)
-    new_pt = np.array([pt[0], pt[1], 1.]).T
+    if dataset == '300W':
+        new_pt = np.array([pt[0]-1, pt[1]-1, 1.]).T
+    else:
+        new_pt = np.array([pt[0], pt[1], 1.]).T
     new_pt = np.dot(t, new_pt)
     return new_pt[:2].astype(int)
 
 
-def transform_preds(coords, center, scale, output_size):
+def transform_preds(coords, center, scale, output_size, dataset='AFLW'):
 
     for p in range(coords.size(0)):
-        coords[p, 0:2] = torch.tensor(transform_pixel(coords[p, 0:2], center, scale, output_size, 1, 0))
+        coords[p, 0:2] = torch.tensor(transform_pixel(coords[p, 0:2], center, scale, output_size, 1, 0, dataset))
     return coords
 
 
-def crop(img, center, scale, output_size, rot=0):
+def crop(img, center, scale, output_size, rot=0, dataset='AFLW'):
     center_new = center.clone()
 
     # Preprocessing for efficient cropping
@@ -181,9 +184,9 @@ def crop(img, center, scale, output_size, rot=0):
             scale = scale / sf
 
     # Upper left point
-    ul = np.array(transform_pixel([0, 0], center_new, scale, output_size, invert=1))
+    ul = np.array(transform_pixel([0, 0], center_new, scale, output_size, invert=1, dataset=dataset))
     # Bottom right point
-    br = np.array(transform_pixel(output_size, center_new, scale, output_size, invert=1))
+    br = np.array(transform_pixel(output_size, center_new, scale, output_size, invert=1, dataset=dataset))
 
     # Padding so that when rotated proper amount of context is included
     pad = int(np.linalg.norm(br - ul) / 2 - float(br[1] - ul[1]) / 2)

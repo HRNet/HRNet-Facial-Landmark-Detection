@@ -72,7 +72,7 @@ class WFLW(data.Dataset):
                 pts = fliplr_joints(pts, width=img.shape[1], dataset='WFLW')
                 center[0] = img.shape[1] - center[0]
 
-        img = crop(img, center, scale, self.input_size, rot=r)
+        img = crop(img, center, scale, self.input_size, rot=r, dataset='WFLW')
 
         target = np.zeros((nparts, self.output_size[0], self.output_size[1]))
         tpts = pts.copy()
@@ -80,7 +80,7 @@ class WFLW(data.Dataset):
         for i in range(nparts):
             if tpts[i, 1] > 0:
                 tpts[i, 0:2] = transform_pixel(tpts[i, 0:2]+1, center,
-                                               scale, self.output_size, rot=r)
+                                               scale, self.output_size, rot=r, dataset='WFLW')
                 target[i] = generate_target(target[i], tpts[i]-1, self.sigma,
                                             label_type=self.label_type)
         img = img.astype(np.float32)
