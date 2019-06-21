@@ -70,7 +70,7 @@ class Face300W(data.Dataset):
                 if random.random() <= 0.6 else 0
             if random.random() <= 0.5 and self.flip:
                 img = np.fliplr(img)
-                pts = fliplr_joints(pts, width=img.shape[1], dataset='300w')
+                pts = fliplr_joints(pts, width=img.shape[1], dataset='300W')
                 center[0] = img.shape[1] - center[0]
 
         img = crop(img, center, scale, self.input_size, rot=r)
