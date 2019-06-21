@@ -147,9 +147,9 @@ def transform_pixel(pt, center, scale, output_size, invert=0, rot=0):
     t = get_transform(center, scale, output_size, rot=rot)
     if invert:
         t = np.linalg.inv(t)
-    new_pt = np.array([pt[0] - 1, pt[1] - 1, 1.]).T
+    new_pt = np.array([pt[0], pt[1], 1.]).T
     new_pt = np.dot(t, new_pt)
-    return new_pt[:2].astype(int) + 1
+    return new_pt[:2].astype(int)
 
 
 def transform_preds(coords, center, scale, output_size):

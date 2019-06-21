@@ -86,7 +86,11 @@ def save_checkpoint(states, predictions, is_best,
     preds = predictions.cpu().data.numpy()
     torch.save(states, os.path.join(output_dir, filename))
     torch.save(preds, os.path.join(output_dir, 'current_pred.pth'))
-    os.symlink(os.path.join(output_dir, filename), os.path.join(output_dir, 'latest.pth'))
+
+    latest_path = os.path.join(output_dir, 'latest.pth')
+    if os.path.exists(latest_path):
+        os.remove(latest_path)
+    os.symlink(os.path.join(output_dir, filename), latest_path)
 
     if is_best and 'state_dict' in states.keys():
         torch.save(states['state_dict'].module, os.path.join(output_dir, 'model_best.pth'))
