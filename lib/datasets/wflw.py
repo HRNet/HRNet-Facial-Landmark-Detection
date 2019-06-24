@@ -79,9 +79,9 @@ class WFLW(data.Dataset):
 
         for i in range(nparts):
             if tpts[i, 1] > 0:
-                tpts[i, 0:2] = transform_pixel(tpts[i, 0:2]+1, center,
+                tpts[i, 0:2] = transform_pixel(tpts[i, 0:2], center,
                                                scale, self.output_size, rot=r, dataset='WFLW')
-                target[i] = generate_target(target[i], tpts[i]-1, self.sigma,
+                target[i] = generate_target(target[i], tpts[i], self.sigma,
                                             label_type=self.label_type)
         img = img.astype(np.float32)
         img = (img/255.0 - self.mean) / self.std
