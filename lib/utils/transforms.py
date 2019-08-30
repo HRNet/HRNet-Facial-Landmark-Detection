@@ -39,7 +39,7 @@ def fliplr_joints(x, width, dataset='aflw'):
     # Flip horizontal
     x[:, 0] = width - x[:, 0]
 
-    if dataset == 'wflw':
+    if dataset == 'WFLW':
         for pair in matched_parts:
             tmp = x[pair[0], :].copy()
             x[pair[0], :] = x[pair[1], :]
