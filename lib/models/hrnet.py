@@ -238,7 +238,7 @@ class HighResolutionModule(nn.Module):
                     y = y + F.interpolate(
                         self.fuse_layers[i][j](x[j]),
                         size=[x[i].shape[2], x[i].shape[3]],
-                        mode='bilinear')
+                        mode='bilinear', align_corners=False)
                 else:
                     y = y + self.fuse_layers[i][j](x[j])
             x_fuse.append(self.relu(y))
@@ -306,7 +306,7 @@ class HighResolutionNet(nn.Module):
             nn.Conv2d(
                 in_channels=final_inp_channels,
                 out_channels=final_inp_channels,
-                kernel_size=1,
+                kernel_size=extra.FINAL_CONV_KERNEL,
                 stride=1,
                 padding=1 if extra.FINAL_CONV_KERNEL == 3 else 0),
             BatchNorm2d(final_inp_channels, momentum=BN_MOMENTUM),
