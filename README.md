@@ -75,7 +75,7 @@ mkdir hrnetv2_pretrained
 ```
 #### Data
 
-1. You need to download the annotations files which have been processed from [OneDrive](https://1drv.ms/u/s!AiWjZ1LamlxzdmYbSkHpPYhI8Ms), [Download](https://cloudstor.aarnet.edu.au/plus/s/m9lHU2aJId8Sh8l), and [BaiduYun](https://pan.baidu.com/s/1Yg1IEp3l2IpGPolpUsWdfg)(Acess Code:ypxg).
+1. You need to download the annotations files which have been processed from [OneDrive](https://1drv.ms/u/s!AiWjZ1LamlxzdmYbSkHpPYhI8Ms), [Cloudstor](https://cloudstor.aarnet.edu.au/plus/s/m9lHU2aJId8Sh8l), and [BaiduYun(Acess Code:ypxg)](https://pan.baidu.com/s/1Yg1IEp3l2IpGPolpUsWdfg).
 
 2. You need to download images (300W, AFLW, WFLW) from official websites and then put them into `images` folder for each dataset.
 
