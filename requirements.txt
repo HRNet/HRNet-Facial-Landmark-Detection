@@ -1,2 +1,4 @@
 hdf5storage
 yacs
+scikit-image
+pillow
