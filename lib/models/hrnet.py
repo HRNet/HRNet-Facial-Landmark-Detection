@@ -238,7 +238,8 @@ class HighResolutionModule(nn.Module):
                     y = y + F.interpolate(
                         self.fuse_layers[i][j](x[j]),
                         size=[x[i].shape[2], x[i].shape[3]],
-                        mode='bilinear')
+                        mode='bilinear',
+                        align_corners=False)
                 else:
                     y = y + self.fuse_layers[i][j](x[j])
             x_fuse.append(self.relu(y))
