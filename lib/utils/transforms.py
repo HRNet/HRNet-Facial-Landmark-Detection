@@ -7,9 +7,14 @@
 import cv2
 import torch
 import scipy
-import scipy.misc
+scipyVer = tuple(map(int, scipy.__version__.split(".")))
+if scipyVer[0] < 1 or (scipyVer[0] == 1 and scipyVer[1] < 2):
+    from scipy.misc import imresize #Removed in scipy 1.3.0
+    from scipy.misc import imrotate #Removed in scipy 1.2.0
+else:
+    from skimage.transform import resize as imresize
+    from skimage.transform import rotate as imrotate
 import numpy as np
-
 
 MATCHED_PARTS = {
     "300W": ([1, 17], [2, 16], [3, 15], [4, 14], [5, 13], [6, 12], [7, 11], [8, 10],
@@ -158,7 +163,6 @@ def transform_preds(coords, center, scale, output_size):
         coords[p, 0:2] = torch.tensor(transform_pixel(coords[p, 0:2], center, scale, output_size, 1, 0))
     return coords
 
-
 def crop(img, center, scale, output_size, rot=0):
     center_new = center.clone()
 
@@ -175,7 +179,7 @@ def crop(img, center, scale, output_size, rot=0):
             return torch.zeros(output_size[0], output_size[1], img.shape[2]) \
                         if len(img.shape) > 2 else torch.zeros(output_size[0], output_size[1])
         else:
-            img = scipy.misc.imresize(img, [new_ht, new_wd])  # (0-1)-->(0-255)
+            img = imresize(img, [new_ht, new_wd])  # (0-1)-->(0-255)
             center_new[0] = center_new[0] * 1.0 / sf
             center_new[1] = center_new[1] * 1.0 / sf
             scale = scale / sf
@@ -207,9 +211,9 @@ def crop(img, center, scale, output_size, rot=0):
 
     if not rot == 0:
         # Remove padding
-        new_img = scipy.misc.imrotate(new_img, rot)
+        new_img = imrotate(new_img, rot)
         new_img = new_img[pad:-pad, pad:-pad]
-    new_img = scipy.misc.imresize(new_img, output_size)
+    new_img = imresize(new_img, output_size)
     return new_img
 
 

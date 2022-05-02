@@ -134,6 +134,9 @@ python tools/test.py --cfg <CONFIG-FILE> --model-file <MODEL WEIGHT>
 python tools/test.py --cfg experiments/wflw/face_alignment_wflw_hrnet_w18.yaml --model-file HR18-WFLW.pth
 ````
 
+#### Visualize
+
+You can check [this repository](https://github.com/vlad3996/HRNet-landmarks) for landmark visualization
  
 ## Other applications of HRNets (codes and models):
 * [Human pose estimation](https://github.com/leoxiaobin/deep-high-resolution-net.pytorch)
