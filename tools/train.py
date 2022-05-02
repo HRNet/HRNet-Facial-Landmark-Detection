@@ -12,7 +12,10 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import torch.backends.cudnn as cudnn
-from tensorboardX import SummaryWriter
+try:
+    from torch.utils.tensorboard import SummaryWriter
+except ImportError:
+    from tensorboardX import SummaryWriter
 from torch.utils.data import DataLoader
 import sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
