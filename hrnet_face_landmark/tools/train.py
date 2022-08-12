@@ -16,11 +16,11 @@ from tensorboardX import SummaryWriter
 from torch.utils.data import DataLoader
 import sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
-import lib.models as models
-from lib.config import config, update_config
-from lib.datasets import get_dataset
-from lib.core import function
-from lib.utils import utils
+import hrnet_face_landmark.models as models
+from hrnet_face_landmark.config import config, update_config
+from hrnet_face_landmark.datasets import get_dataset
+from hrnet_face_landmark.core import function
+from hrnet_face_landmark.utils import utils
 
 
 def parse_args():
